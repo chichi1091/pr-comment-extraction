@@ -14,7 +14,6 @@ template = environment.get_template(PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME)
 
 def main(env, repo):
     urls = repo.split('/')
-    print(urls)
     if 2 != len(urls):
         print('github repository format [{owner}/{repository}].')
         return 1
