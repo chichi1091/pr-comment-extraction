@@ -15,6 +15,8 @@ template = environment.get_template(PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME)
 
 def make_markdown(owner, repository, api, pr):
     comments = api.get_pull_comment(owner, repository, str(pr['number']))
+    # asc_comments = sortd(comments, key = lambda i: (i['pull_request_review_id'], i['id']))
+    # print('pull request No.' + str(pr['number']) + ' comments count: ' + str(len(asc_comments)))
 
     json_comments = []
     for comment in comments:
@@ -32,7 +34,6 @@ def make_markdown(owner, repository, api, pr):
     # print('------------------------------')
 
     if any(json_comments):
-        print('pull request No.' + str(pr['number']) + ' comments count: ' + str(len(comments)))
         json_data = {}
         json_data['title'] = pr['title']
         json_data['url'] = pr['html_url']
