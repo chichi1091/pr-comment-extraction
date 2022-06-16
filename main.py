@@ -13,8 +13,6 @@ PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME = 'pr_review_comment.j2'
 environment = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR_PATH, encoding='utf8'))
 template = environment.get_template(PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME)
 
-api = None
-
 def make_markdown(owner, repository, api, pr):
     comments = api.get_pull_comment(owner, repository, str(pr['number']))
 
