@@ -27,7 +27,7 @@ class GitHubApi:
                 if paginate:
                     next_link = self.__get_next_link(res.info())
                     if next_link:
-                        json_obj.extend(self.__get_json(next_link))
+                        json_obj.extend(self.__get_json(next_link, paginate))
                 return json_obj
         except urllib.error.URLError as err:
             print('Could not access: %s' % req.full_url, file=sys.stderr)
@@ -55,13 +55,13 @@ class GitHubApi:
         return req
     
     def get_pull_request(self, owner, repo, params = {}):
-        url = self.BASE_URL + '/repos/%s/%s/pulls?state=all' % (quote(owner), quote(repo))
+        url = self.BASE_URL + '/repos/%s/%s/pulls?state=all&per_page=100' % (quote(owner), quote(repo))
         if params:
             url = '%s&%s' % (url, urlencode(params))
         return self.__get_json(url, paginate=True)
 
     def get_pull_comment(self, owner, repo, pull_number, params = {}):
-        url = self.BASE_URL + '/repos/%s/%s/pulls/%s/comments' % (quote(owner), quote(repo), quote(pull_number))
+        url = self.BASE_URL + '/repos/%s/%s/pulls/%s/comments?per_page=100' % (quote(owner), quote(repo), quote(pull_number))
         if params:
             url = '%s&%s' % (url, urlencode(params))
         return self.__get_json(url, paginate=True)
