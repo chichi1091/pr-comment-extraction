@@ -1,24 +1,27 @@
-# PR Review Comment Info
+# PR Review Comment Info: {{title}}
 
-- PR title: {{title}}
 - PR URL: {{url}}
 - PR create user: {{create_user}}
 
+---
+
 {% for comment in comments %}
-## PR Comments({{loop.index}})
+## PR Comments(#{{loop.index}})
 
 - Review Comment URL: {{comment.comment_url}}
 - Reviewer: {{comment.reviewer}}
 - Review file path: {{comment.file_path}}
 - diff:
 
-```
+```{{comment.language}}
 {{comment.diff}}
 ```
 
-- Review comment:
+## Review comment
 
 <pre>
 {{comment.comment}}
 </pre>
+
+---
 {% endfor %}
