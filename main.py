@@ -8,10 +8,12 @@ from concurrent.futures import ProcessPoolExecutor
 
 TEMPLATES_DIR_PATH = './templates/'
 OUTPUT_DIR_PATH = './outputs/'
+PR_REVIEW_INDEX_FILE_NAME = 'index.j2'
 PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME = 'pr_review_comment.j2'
 
 environment = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR_PATH, encoding='utf8'))
-template = environment.get_template(PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME)
+indexTemplate = environment.get_template(PR_REVIEW_INDEX_FILE_NAME)
+reviewCommentTemplate = environment.get_template(PR_REVIEW_COMMENT_TEMPLATE_FILE_NAME)
 
 def language_decision(fileName):
     index = fileName.rfind(".")
@@ -98,10 +100,17 @@ def make_markdown(owner, repository, api, pr):
         json_data['create_user'] = pr['user']['login']
         json_data['comments'] = json_comments
 
-        md_file_data = template.render(json_data)
+        md_file_data = reviewCommentTemplate.render(json_data)
         md_file_path = repository + '/pr-' + str(pr['number']) + '.md'
         with open(OUTPUT_DIR_PATH + md_file_path , mode='w', encoding='CP932', errors='ignore') as f:
             f.write(md_file_data)
+        
+        summay = {}
+        summay['title'] = pr['title']
+        summay['number'] = pr['number']
+
+        return summay
+    return None
 
 def main(env, repo):
     urls = repo.split('/')
@@ -124,9 +133,10 @@ def main(env, repo):
     prs = api.get_pull_request(owner, repository)
     print('all pull request count:' + str(len(prs)))
 
+    json_prs = []
     with ProcessPoolExecutor(max_workers=5) as executor:
         for pr in prs:
-            executor.submit(make_markdown, owner, repository, api, pr)
+            json_prs.append(executor.submit(make_markdown, owner, repository, api, pr))
 
         # print('title:' + pr['title'])
         # print('number:' + str(pr['number']))
@@ -134,6 +144,18 @@ def main(env, repo):
         # print('html_url:' + pr['html_url'])
         # print('review_comments_url:' + pr['review_comments_url'])
         # print('comments_url:' + pr['comments_url'])
+
+    json_index = {}
+    json_index['owner'] = owner
+    json_index['repository'] = repository
+    prs = [f.result() for f in json_prs if f.result() is not None]
+    prs = sorted(prs, key = lambda i: i['number'])
+    json_index['prs'] = prs
+
+    md_file_data = indexTemplate.render(json_index)
+    md_file_path = repository + '/index.md'
+    with open(OUTPUT_DIR_PATH + md_file_path , mode='w', encoding='CP932', errors='ignore') as f:
+        f.write(md_file_data)
 
     return 0
 
