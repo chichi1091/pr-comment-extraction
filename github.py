@@ -48,8 +48,8 @@ class GitHubApi:
     def __create_request(self, url):
         req = urllib.request.Request(url)
         req.add_header('User-Agent', 'pr-comment-extraction')
-        req.add_header('Accept', 'application/vnd.github.v3+json')
-        req.add_header('Content-Type', 'application/json')
+        # req.add_header('Accept', 'application/vnd.github.v3+json')
+        # req.add_header('Content-Type', 'application/json')
         if 'token' in self.option:
             req.add_header('Authorization', 'token %s' % self.option['token'])
         if 'proxy' in self.option:
